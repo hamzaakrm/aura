@@ -76,7 +76,8 @@ class MainWindow(QMainWindow):
         db.init_db()
 
         self.setWindowTitle("AURA - Your Personal AI Assistant")
-        self.resize(720, 640)
+        self.resize(760, 680)
+        self.setStyleSheet(self._global_stylesheet())
 
         self.automation_on = False
         self.learning_on = False
@@ -89,10 +90,65 @@ class MainWindow(QMainWindow):
         self._build_chat_area()
         self._greet_user()
 
+    @staticmethod
+    def _global_stylesheet() -> str:
+        """A clean, warm, Claude-inspired look for the whole app."""
+        return """
+            QMainWindow, QWidget {
+                background-color: #F5F4EF;
+                font-family: "Segoe UI", sans-serif;
+                font-size: 14px;
+                color: #2D2A26;
+            }
+            QScrollArea { border: none; }
+            QToolBar {
+                background-color: #F5F4EF;
+                border: none;
+                spacing: 8px;
+                padding: 8px 12px;
+            }
+            QToolBar QToolButton {
+                background-color: #EAE8E1;
+                color: #5B5750;
+                border: none;
+                border-radius: 14px;
+                padding: 6px 14px;
+                font-size: 12px;
+            }
+            QToolBar QToolButton:checked {
+                background-color: #D97757;
+                color: white;
+            }
+            QMenuBar {
+                background-color: #F5F4EF;
+                border: none;
+            }
+            QLineEdit {
+                background-color: white;
+                border: 1px solid #E0DED6;
+                border-radius: 18px;
+                padding: 10px 16px;
+                font-size: 14px;
+            }
+            QLineEdit:focus { border: 1px solid #D97757; }
+            QPushButton {
+                background-color: #D97757;
+                color: white;
+                border: none;
+                border-radius: 18px;
+                padding: 10px 20px;
+                font-size: 13px;
+                font-weight: 600;
+            }
+            QPushButton:hover { background-color: #C5673F; }
+            QPushButton:pressed { background-color: #B15A35; }
+        """
+
     # ---------- UI construction ----------
 
     def _build_toolbar(self):
         toolbar = QToolBar("Modes")
+        toolbar.setMovable(False)
         self.addToolBar(toolbar)
 
         self.automation_action = QAction("Automation: OFF", self)
@@ -134,18 +190,28 @@ class MainWindow(QMainWindow):
         central = QWidget()
         self.setCentralWidget(central)
         layout = QVBoxLayout(central)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
 
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidgetResizable(True)
         self.chat_container = QWidget()
+        self.chat_container.setStyleSheet("background-color: #F5F4EF;")
         self.chat_layout = QVBoxLayout(self.chat_container)
+        self.chat_layout.setContentsMargins(24, 20, 24, 20)
+        self.chat_layout.setSpacing(14)
         self.chat_layout.addStretch()
         self.scroll_area.setWidget(self.chat_container)
         layout.addWidget(self.scroll_area)
 
-        input_row = QHBoxLayout()
+        input_wrapper = QWidget()
+        input_wrapper.setStyleSheet("background-color: #F5F4EF; border-top: 1px solid #E5E4DD;")
+        input_row = QHBoxLayout(input_wrapper)
+        input_row.setContentsMargins(20, 14, 20, 14)
+        input_row.setSpacing(10)
+
         self.input_box = QLineEdit()
-        self.input_box.setPlaceholderText("Type a message...")
+        self.input_box.setPlaceholderText("Message AURA...")
         self.input_box.returnPressed.connect(self._on_send)
         input_row.addWidget(self.input_box)
 
@@ -154,10 +220,11 @@ class MainWindow(QMainWindow):
         input_row.addWidget(send_btn)
 
         mic_btn = QPushButton("Mic")
+        mic_btn.setFixedWidth(48)
         mic_btn.clicked.connect(self._on_mic)
         input_row.addWidget(mic_btn)
 
-        layout.addLayout(input_row)
+        layout.addWidget(input_wrapper)
 
     # ---------- Helpers ----------
 
@@ -167,11 +234,14 @@ class MainWindow(QMainWindow):
         label.setTextInteractionFlags(Qt.TextSelectableByMouse)
         if sender == "you":
             label.setStyleSheet(
-                "background-color: #DCF8C6; border-radius: 8px; padding: 8px; margin-left: 80px;"
+                "background-color: white; border: 1px solid #E5E4DD; "
+                "border-radius: 14px; padding: 10px 14px; margin-left: 100px; "
+                "font-size: 14px; color: #2D2A26;"
             )
         else:
             label.setStyleSheet(
-                "background-color: #F1F0F0; border-radius: 8px; padding: 8px; margin-right: 80px;"
+                "background-color: transparent; padding: 4px 6px 4px 0px; "
+                "margin-right: 40px; font-size: 14px; color: #2D2A26; line-height: 150%;"
             )
         self.chat_layout.insertWidget(self.chat_layout.count() - 1, label)
         QApplication.processEvents()
@@ -338,7 +408,7 @@ class MainWindow(QMainWindow):
             reply, used_search = result
             self.input_box.setEnabled(True)
             if used_search:
-                self._add_bubble("🔍 (checked the web for this reply)", "aura")
+                self._add_bubble("(checked the web for this reply)", "aura")
             self._add_bubble(reply, "aura")
             db.save_message("assistant", reply)
             if used_search:
@@ -351,8 +421,7 @@ class MainWindow(QMainWindow):
             maybe_summarize()
 
         self._run_in_background(chat_task, on_done)
-
-    # ---------- Text command routing (mirrors the CLI's command set) ----------
+        # ---------- Text command routing (mirrors the CLI's command set) ----------
 
     def _handle_command(self, user_input: str) -> bool:
         lower = user_input.lower()
@@ -447,4 +516,122 @@ class MainWindow(QMainWindow):
             body = user_input.split(":", 1)[1]
             src, dst = [p.strip() for p in body.split("->", 1)]
             self._add_bubble(automation_engine.move_item(src, dst), "aura")
-            return
+            return True
+        if lower.startswith("copy:") and "->" in user_input:
+            body = user_input.split(":", 1)[1]
+            src, dst = [p.strip() for p in body.split("->", 1)]
+            self._add_bubble(automation_engine.copy_item(src, dst), "aura")
+            return True
+        if lower.startswith("delete:"):
+            path = user_input.split(":", 1)[1].strip()
+            confirm = QMessageBox.question(self, "Confirm delete", f"Delete '{path}'?")
+            if confirm == QMessageBox.Yes:
+                self._add_bubble(automation_engine.delete_item(path), "aura")
+            else:
+                self._add_bubble("Cancelled, nothing was deleted.", "aura")
+            return True
+        if lower.startswith("search:") and " in " in user_input:
+            body = user_input.split(":", 1)[1]
+            query, root = body.split(" in ", 1)
+            self._add_bubble(automation_engine.search_files(query.strip(), root.strip()), "aura")
+            return True
+        return False
+
+    def _handle_learning(self, lower, user_input) -> bool:
+        if lower == "topics":
+            import learning_engine
+            topics = learning_engine.list_known_topics()
+            text = "\n".join(f"- {t.replace('_', ' ')}" for t in topics) or "I haven't learned anything yet."
+            self._add_bubble(text, "aura")
+            return True
+
+        if lower.startswith("recall:"):
+            import learning_engine
+            topic = user_input.split(":", 1)[1].strip()
+            self._add_bubble(learning_engine.smart_recall(topic), "aura")
+            return True
+
+        if self.learning_on and lower.startswith("learn:"):
+            topic = user_input.split(":", 1)[1].strip()
+            self._add_bubble(f"Researching '{topic}'... this may take a moment.", "aura")
+
+            def task():
+                import learning_engine
+                return learning_engine.learn_topic(topic)
+
+            self._run_in_background(task, lambda text: self._add_bubble(text, "aura"))
+            return True
+
+        if self.learning_on and lower.startswith("websearch:"):
+            query = user_input.split(":", 1)[1].strip()
+            self._add_bubble(f"Searching '{query}'... this may take a moment.", "aura")
+
+            def task():
+                import learning_engine
+                return learning_engine.quick_search(query)
+
+            self._run_in_background(task, lambda text: self._add_bubble(text, "aura"))
+            return True
+
+        if lower.startswith(("learn:", "websearch:")) and not self.learning_on:
+            self._add_bubble("Learning Mode is off. Toggle it on in the toolbar first.", "aura")
+            return True
+
+        return False
+
+    def _handle_business(self, lower, user_input) -> bool:
+        if lower.startswith("describe:") and "|" in user_input:
+            body = user_input.split(":", 1)[1]
+            product, details = [p.strip() for p in body.split("|", 1)]
+
+            def task():
+                import business_engine
+                return business_engine.write_product_description(product, details)
+
+            self._run_in_background(task, lambda text: self._add_bubble(text, "aura"))
+            return True
+
+        if lower.startswith("seo:"):
+            topic = user_input.split(":", 1)[1].strip()
+
+            def task():
+                import business_engine
+                return business_engine.write_seo_keywords(topic)
+
+            self._run_in_background(task, lambda text: self._add_bubble(text, "aura"))
+            return True
+
+        if lower.startswith("email:") and "|" in user_input:
+            body = user_input.split(":", 1)[1]
+            purpose, points = [p.strip() for p in body.split("|", 1)]
+
+            def task():
+                import business_engine
+                return business_engine.draft_email(purpose, points)
+
+            self._run_in_background(task, lambda text: self._add_bubble(text, "aura"))
+            return True
+
+        if lower.startswith("content:") and "|" in user_input:
+            body = user_input.split(":", 1)[1]
+            content_type, topic = [p.strip() for p in body.split("|", 1)]
+
+            def task():
+                import business_engine
+                return business_engine.write_content(content_type, topic)
+
+            self._run_in_background(task, lambda text: self._add_bubble(text, "aura"))
+            return True
+
+        return False
+
+
+def main():
+    app = QApplication(sys.argv)
+    window = MainWindow()
+    window.show()
+    sys.exit(app.exec())
+
+
+if __name__ == "__main__":
+    main()
