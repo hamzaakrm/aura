@@ -13,17 +13,9 @@ Most AI assistants (ChatGPT, Alexa, Siri, Google Assistant) send everything you 
 
 ## Screenshots
 
-<!--
-Add real screenshots here once you have them. In your repo:
-1. Create a folder called "docs/images" (or "screenshots")
-2. Upload a screenshot of the terminal chat and/or the desktop GUI window
-3. Reference them like this:
+## Screenshots
 
-![Terminal chat](docs/images/terminal-chat.png)
-![Desktop GUI](docs/images/gui-window.png)
--->
-
-*(Screenshots coming soon)*
+![AURA Desktop GUI](docs/images/gui-screenshot.png)
 
 ## Features
 
