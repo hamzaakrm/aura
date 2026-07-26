@@ -1,0 +1,4 @@
+ollama
+vosk
+sounddevice
+pyttsx3

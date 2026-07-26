@@ -1,0 +1,17 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# Personal data -- never commit these to a public repo
+Database/*.db
+Knowledge/*.md
+Backup/backup_*/
+Logs/*.log
+
+# Voice models are large binary downloads, not source code
+Voice/vosk-model*/
+
+# OS files
+.DS_Store
+Thumbs.db
