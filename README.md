@@ -1,10 +1,29 @@
 # AURA — Artificial Unified Responsive Assistant
 
+![Python](https://img.shields.io/badge/python-3.11%2B-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+![Platform](https://img.shields.io/badge/platform-Windows-lightgrey)
+![Offline First](https://img.shields.io/badge/offline--first-yes-brightgreen)
+
 A fully offline, privacy-first personal AI assistant that runs entirely on your own computer. No cloud, no subscriptions, no data ever leaves your machine except deliberate, controlled web searches you explicitly enable.
 
 ## Why AURA
 
 Most AI assistants (ChatGPT, Alexa, Siri, Google Assistant) send everything you say to a company's servers. AURA doesn't. Your conversations, memory, and personal data live only on your own disk. You own it completely — no account, no subscription, no company that can shut it down or change the rules.
+
+## Screenshots
+
+<!--
+Add real screenshots here once you have them. In your repo:
+1. Create a folder called "docs/images" (or "screenshots")
+2. Upload a screenshot of the terminal chat and/or the desktop GUI window
+3. Reference them like this:
+
+![Terminal chat](docs/images/terminal-chat.png)
+![Desktop GUI](docs/images/gui-window.png)
+-->
+
+*(Screenshots coming soon)*
 
 ## Features
 
@@ -31,7 +50,7 @@ Most AI assistants (ChatGPT, Alexa, Siri, Google Assistant) send everything you 
 ## Setup
 
 ```bash
-git clone https://github.com/<your-username>/aura.git
+git clone https://github.com/hamzaakrm/aura.git
 cd aura
 python -m venv venv
 venv\Scripts\activate          # Windows
@@ -67,4 +86,4 @@ Everything is stored locally in `Database/aura.db` and `Knowledge/*.md`. The onl
 
 ## License
 
-MIT
+MIT — see [LICENSE](LICENSE) for details.
