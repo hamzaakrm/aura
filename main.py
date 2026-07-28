@@ -493,6 +493,17 @@ def main():
                 print("AURA: Cancelled, nothing was restored.")
             continue
 
+        if user_input.lower().startswith("think:"):
+            from chat_engine import ask_aura_deep
+            question = user_input.split(":", 1)[1].strip()
+            print("AURA: (thinking this through carefully...)")
+            messages = build_message_list(question)
+            reply = ask_aura_deep(messages)
+            print(f"\nAURA:\n{reply}")
+            db.save_message("user", question)
+            db.save_message("assistant", reply)
+            continue
+
         search_context = ""
         if learning_enabled:
             import learning_engine

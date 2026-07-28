@@ -15,3 +15,9 @@ Voice/vosk-model*/
 # OS files
 .DS_Store
 Thumbs.db
+
+# PyInstaller build artifacts
+build/
+dist/
+*.spec
+build_log.txt

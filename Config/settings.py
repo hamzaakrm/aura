@@ -11,6 +11,10 @@ OLLAMA_MODEL = "qwen2.5:7b"
 # Context window size (tokens) sent to the model per request
 CONTEXT_WINDOW = 8192
 
+# Generation temperature: lower = more careful/focused/consistent answers,
+# higher = more varied/creative. 0.4 favors careful reasoning over flair.
+TEMPERATURE = 0.4
+
 # How many past messages to load from memory as conversation context
 MEMORY_HISTORY_LIMIT = 20
 
